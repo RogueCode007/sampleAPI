@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Item;
+use Validator;
 
 class ItemController extends Controller
 {
@@ -36,6 +37,15 @@ class ItemController extends Controller
      */
     public function store(Request $request)
     {
+        $rules = array(
+            'name' => 'required|string',
+            'price' => 'required|numeric',
+            'description' => 'required|string'
+        );
+        $validator = Validator::make($request->item, $rules);
+        if($validator->fails()){
+            return $validator->errors();
+        }
         return Item::create([
             'name' => $request->item["name"],
             'price' => $request->item["price"],
@@ -80,11 +90,22 @@ class ItemController extends Controller
     {
         $item = Item::find($id);
         if($item){
-            $item->name = $request->item['name'];
-            $item->price = $request->item['price'];
-            $item->description = $request->item['description'];
-            $item->save();
-            return $item;
+            $rules = array(
+                'name' => 'required|string',
+                'price' => 'required|numeric',
+                'description' => 'required|string'
+            );
+            $validator = Validator::make($request->item, $rules);
+            if($validator->fails()){
+                return $validator->errors();
+            }else{
+                $item->name = $request->item['name'];
+                $item->price = $request->item['price'];
+                $item->description = $request->item['description'];
+                $item->save();
+                return $item;
+            }
+            
         }
         return "Item not found";
     }
